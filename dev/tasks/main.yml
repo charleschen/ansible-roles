@@ -1,0 +1,16 @@
+---
+
+- name: Update apt
+  shell: apt-get update
+  sudo: True
+
+- name: Install common packages
+  action: apt pkg={{ item }} state=latest
+  sudo: True
+  with_items:
+    - build-essential
+    - gettext
+    - git
+    - vim
+    - python-dev
+    - python-pip

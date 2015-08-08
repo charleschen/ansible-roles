@@ -1,0 +1,132 @@
+---
+
+- name: Install webserver packages
+  action: apt pkg={{ item }} state=latest
+  sudo: True
+  with_items:
+    - nginx
+    - libevent-dev
+
+- name: Install NPM
+  action: apt pkg={{ item }} state=latest
+  sudo: True
+  with_items:
+    - nodejs
+    - npm
+
+- name: Add symlink for node binary for old packages
+  file: src=/usr/bin/nodejs dest=/usr/bin/node state=link
+  sudo: True
+
+- name: Install "grunt-cli" node.js package globally
+  npm: name=grunt-cli global=yes
+  sudo: True
+
+- name: Install "uglify-js" node.js package globally
+  npm: name=uglify-js global=yes
+  sudo: True
+
+- name: Install "bower" node.js package globally
+  npm: name=bower global=yes
+  sudo: True
+
+- name: Install "less" node.js package globally
+  npm: name=less global=yes
+  sudo: True
+
+- name: Install production server requirements
+  action: pip name={{ item }} state=latest
+  sudo: True
+  with_items:
+    - greenlet
+    - gevent
+    - gunicorn
+    - supervisor
+
+- name: Check if path to code directory exists
+  stat: path="{{ code_dir | dirname }}"
+  register: parent_dir
+
+- name: Create path to code directory
+  file: path="{{ code_dir | dirname }}" owner="{{ ansible_ssh_user }}" group="{{ ansible_ssh_user }}" mode=0755 state=directory
+  when: not parent_dir.stat.exists
+  sudo: True
+
+- name: Check if code directory exists
+  stat: path="{{ code_dir }}"
+  register: efs_dir
+  sudo: True
+
+- name: Clone repository
+  git: repo="{{ repo }}" dest="{{ code_dir }}" accept_hostkey=yes
+  when: not efs_dir.stat.exists
+
+- name: Pull latest code
+  git: repo="{{ repo }}" dest="{{ code_dir }}" accept_hostkey=yes update=yes
+  when: skip_pull is not defined
+
+- name: Copy app specific settings
+  copy: src="../settings/{{ settings }}" dest="{{ code_dir }}/settings.cfg"
+  when: settings is defined
+
+- name: Install application requirements
+  pip: requirements="{{ code_dir }}/requirements.txt" state=latest
+  sudo: True
+
+- name: Stop nginx to update configs
+  service: name=nginx state=stopped
+  sudo: True
+
+- name: Remove default nginx site
+  file: path=/etc/nginx/site-enabled/default state=absent
+  sudo: True
+
+- name: Create nginx config
+  template: src=nginx.conf dest=/etc/nginx/nginx.conf owner=root
+  sudo: True
+
+- name: Ensure ssl directory exists
+  file: path=/etc/ssl owner="root" state=directory
+  sudo: True
+
+- name: Create SSL crt
+  copy: src=../ssl/{{ ssl_crt }} dest=/etc/ssl/ssl.crt owner=root
+  when: ssl_crt is defined
+  sudo: True
+
+- name: Create SSL key
+  copy: src=../ssl/{{ ssl_key }} dest=/etc/ssl/ssl.key owner=root
+  when: ssl_key is defined
+  sudo: True
+
+- name: Start nginx
+  service: name=nginx state=started enabled=yes
+  sudo: True
+
+- name: Create supervisord config folder
+  file: dest=/etc/supervisor state=directory owner=root
+  sudo: True
+
+- name: Create supervisord config
+  template: src=supervisord.ini dest=/etc/supervisor/supervisord.ini
+  sudo: True
+
+- name: Create supervisord service config
+  template: src=supervisord.conf dest=/etc/supervisord.conf
+  sudo: True
+
+- name: Create supervisord init script
+  template: src=supervisord.sh dest=/etc/init.d/supervisord mode=0755
+  sudo: True
+
+- name: create supervisor group
+  group: name=supervisor state=present
+  sudo: True
+
+- name: modify vagrant user to supevisor group
+  user: name={{ ansible_ssh_user }} group=supervisor append=yes state=present
+  sudo: True
+
+- name: Start supervisord service and have it run during system startup
+  service: name=supervisord state=restarted enabled=yes
+  sudo: True
