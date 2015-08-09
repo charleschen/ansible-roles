@@ -1,0 +1,32 @@
+---
+
+- set_fact:
+    done_file: "{{ postgresql_lib_dir }}/.done"
+
+- name: check for done file
+  stat: path="{{ done_file }}" 
+  register: done_file_stat
+
+- name: Find postgres bin path
+  shell: dpkg -L postgresql-"{{ postgresql_version | string | quote }}" | grep bin$
+  register: postgres_bin_path
+
+- name: Create initdb
+  template: src=initdb.template dest="{{ postgresql_conf_directory }}/initdb" mode=0755
+  sudo: true
+
+- debug: msg="database already initialized!"
+  when: done_file_stat.stat.exists
+
+- name: initiate initdb
+  command: "{{ postgresql_conf_directory }}/initdb"
+  when: not done_file_stat.stat.exists
+  become: yes
+  become_user: postgres
+
+- name: write done file
+  file: path="{{ done_file }}" state=touch
+  when: not done_file_stat.stat.exists
+  become: yes
+  become_user: postgres
+

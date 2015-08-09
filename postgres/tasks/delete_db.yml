@@ -1,0 +1,14 @@
+---
+
+- set_fact:
+    done_file: "{{ postgresql_lib_dir }}/.done"
+
+- name: remove data files
+  file: path="{{ postgresql_data_directory }}" state=absent
+  become: yes
+  become_user: postgres
+
+- name: remove done file
+  file: path="{{ done_file}}" state=absent
+  become: yes
+  become_user: postgres
