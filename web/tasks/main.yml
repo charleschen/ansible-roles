@@ -18,21 +18,17 @@
   file: src=/usr/bin/nodejs dest=/usr/bin/node state=link
   sudo: True
 
-- name: Install "grunt-cli" node.js package globally
-  npm: name=grunt-cli global=yes
-  sudo: True
+- name: Install grunt locally packages globally
+  npm: name=grunt path={{ code_dir }}
 
-- name: Install "uglify-js" node.js package globally
-  npm: name=uglify-js global=yes
+- name: Install node.js packages globally
+  npm: name={{ item }} global=yes
   sudo: True
-
-- name: Install "bower" node.js package globally
-  npm: name=bower global=yes
-  sudo: True
-
-- name: Install "less" node.js package globally
-  npm: name=less global=yes
-  sudo: True
+  with_items:
+    - grunt-cli
+    - uglify-js
+    - bower
+    - less
 
 - name: Install production server requirements
   action: pip name={{ item }} state=latest

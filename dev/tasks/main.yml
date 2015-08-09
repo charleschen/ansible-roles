@@ -14,3 +14,4 @@
     - vim
     - python-dev
     - python-pip
+    - ipython
