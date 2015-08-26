@@ -1,0 +1,20 @@
+---
+- name: Create redis config folder
+  file: dest=/etc/redis state=directory owner=root
+  sudo: True
+
+- name: Create redis config
+  template: src=redis.conf dest=/etc/redis/redis.conf owner=root
+  sudo: True
+
+- name: Install Redis
+  when: ansible_os_family == 'Debian'
+  sudo: yes
+  apt:
+    name: "redis-server"
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  tags:
+    - redis
+    - db

@@ -18,8 +18,12 @@
   file: src=/usr/bin/nodejs dest=/usr/bin/node state=link
   sudo: True
 
-- name: Install grunt locally packages globally
+- name: Install node packages locally (for grunt cli)
   npm: name=grunt path={{ code_dir }}
+  with_items:
+    - grunt
+    - grunt-bower-task
+    - underscore
 
 - name: Install node.js packages globally
   npm: name={{ item }} global=yes
@@ -29,6 +33,12 @@
     - uglify-js
     - bower
     - less
+
+- name: Install node.js packages globally with versions
+  npm: name={{ item.name }} version={{ item.version }} global=yes
+  sudo: True
+  with_items:
+    - { name: node-sass, version: 0.9.6 }
 
 - name: Install production server requirements
   action: pip name={{ item }} state=latest
