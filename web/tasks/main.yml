@@ -6,6 +6,7 @@
   with_items:
     - nginx
     - libevent-dev
+    - python-lxml
 
 - name: Install NPM
   action: apt pkg={{ item }} state=latest
