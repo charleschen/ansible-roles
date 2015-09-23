@@ -7,6 +7,9 @@
     - nginx
     - libevent-dev
     - python-lxml
+    - libxml2-dev
+    - libxslt-dev
+    - libffi-dev
 
 - name: Install NPM
   action: apt pkg={{ item }} state=latest
@@ -18,13 +21,6 @@
 - name: Add symlink for node binary for old packages
   file: src=/usr/bin/nodejs dest=/usr/bin/node state=link
   sudo: True
-
-- name: Install node packages locally (for grunt cli)
-  npm: name=grunt path={{ code_dir }}
-  with_items:
-    - grunt
-    - grunt-bower-task
-    - underscore
 
 - name: Install node.js packages globally
   npm: name={{ item }} global=yes
@@ -75,6 +71,13 @@
 - name: Copy app specific settings
   copy: src="../settings/{{ settings }}" dest="{{ code_dir }}/settings.cfg"
   when: settings is defined
+
+- name: Install node packages locally (for grunt cli)
+  npm: name=grunt path={{ code_dir }}
+  with_items:
+    - grunt
+    - grunt-bower-task
+    - underscore
 
 - name: Install application requirements
   pip: requirements="{{ code_dir }}/requirements.txt" state=latest
