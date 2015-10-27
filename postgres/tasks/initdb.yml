@@ -29,4 +29,3 @@
   when: not done_file_stat.stat.exists
   become: yes
   become_user: postgres
-

@@ -47,11 +47,17 @@
     - supervisor
 
 - name: Check if path to code directory exists
-  stat: path="{{ code_dir | dirname }}"
+  stat: 
+    path: "{{ code_dir | dirname }}"
   register: parent_dir
 
 - name: Create path to code directory
-  file: path="{{ code_dir | dirname }}" owner="{{ ansible_ssh_user }}" group="{{ ansible_ssh_user }}" mode=0755 state=directory
+  file: 
+    path: "{{ code_dir | dirname }}" 
+    owner: "{{ ansible_ssh_user }}" 
+    group: "{{ ansible_ssh_user }}" 
+    mode: 0755 
+    state: directory
   when: not parent_dir.stat.exists
   sudo: True
 

@@ -48,3 +48,15 @@
     - postgresql
     - db
     - deps
+
+
+- name: install extensions
+  become: yes
+  become_user: postgres
+  postgresql_ext: 
+    db: caresprout
+    name: "{{ item }}"
+  with_items:
+    - cube
+    - earthdistance
+    - postgis
