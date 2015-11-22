@@ -89,6 +89,12 @@
   pip: requirements="{{ code_dir }}/requirements.txt" state=latest
   sudo: True
 
+- name: Install lxml
+  pip: name=lxml
+  environment: 
+    CFLAGS: "-O0"
+
+
 - name: Stop nginx to update configs
   service: name=nginx state=stopped
   sudo: True

@@ -1,0 +1,19 @@
+---
+
+# Install extensions with specified database
+
+- name: start postgres
+  become: yes
+  become_user: postgres
+  service: name=postgresql state=started
+
+- name: install extensions
+  become: yes
+  become_user: postgres
+  postgresql_ext: 
+    db: "{{ dbname }}"
+    name: "{{ item }}"
+  with_items:
+    - cube
+    - earthdistance
+    - postgis
