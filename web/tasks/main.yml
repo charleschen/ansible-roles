@@ -86,7 +86,11 @@
     - underscore
 
 - name: Install application requirements
-  pip: requirements="{{ code_dir }}/requirements.txt" state=latest
+  pip: 
+    requirements: "requirements.txt" 
+    state: latest 
+    chdir: "{{ code_dir }}"
+    extra_args: "--exists-action s"
   sudo: True
 
 - name: Install lxml
