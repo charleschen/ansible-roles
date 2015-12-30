@@ -17,3 +17,14 @@
     - cube
     - earthdistance
     - postgis
+
+- name: install extensions
+  become: yes
+  become_user: postgres
+  postgresql_ext: 
+    db: "test_{{ dbname }}"
+    name: "{{ item }}"
+  with_items:
+    - cube
+    - earthdistance
+    - postgis
