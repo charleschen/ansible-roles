@@ -1,0 +1,50 @@
+---
+
+- set_fact:
+    host_backup_file_path: "pgbackup.tar.gz"
+    remote_backup_file_path: "/tmp/pgbackup.tar.gz"
+
+- name: restart postgres
+  service: name=postgresql state=restarted
+  sudo: yes
+
+- name: drop database
+  postgresql_db:
+    name: "{{ dbname }}"
+    port: "{{ postgresql_port }}"
+    state: absent
+  become: yes
+  become_user: "{{ postgresql_admin_user }}"
+
+- name: remove done file
+  file:
+    state: absent
+    path: "/var/lib/postgresql/.done"
+  become: yes
+  become_user: "{{ postgresql_admin_user }}"
+
+- name: initdb
+  command: "/etc/postgresql/initdb"
+  environment:
+    POSTGRES_MASTER_BUILT: "true"
+  become: yes
+  become_user: "{{ postgresql_admin_user }}"
+
+- name: copy backup to remote
+  copy:
+    src: "{{ host_backup_file_path }}"
+    dest: "{{ remote_backup_file_path }}"
+
+- name: start postgres
+  service: name=postgresql state=started
+  sudo: yes
+
+- name: pg_restore
+  shell: "pg_restore -d {{ dbname }} {{ remote_backup_file_path }}"
+  become: yes
+  become_user: "{{ postgresql_admin_user }}"
+
+- name: remote backup
+  file:
+    state: absent
+    path: "{{ remote_backup_file_path }}"

@@ -1,0 +1,27 @@
+---
+
+- set_fact: 
+    backup_file_name: "{{ lookup('pipe','date +%Y-%m-%d_pgbackup.tar.gz') }}"
+
+- debug: 
+    msg: "backup: {{ backup_file_name }}"
+
+- name: dump postgres
+  shell: "pg_dump -p {{ postgresql_port }} -F c {{ dbname }} -f {{ backup_file_name }}"
+  args:
+    chdir: "/tmp"
+  become: yes
+  become_user: "{{ postgresql_admin_user }}"
+
+- fetch:
+    src: "/tmp/{{ backup_file_name }}"
+    dest: "."
+    flat: yes
+    validate_checksum: no
+
+- name: delete dump
+  file:
+    state: absent
+    path: "/tmp/{{ backup_file_name }}"
+  become: yes
+  become_user: "{{ postgresql_admin_user }}"

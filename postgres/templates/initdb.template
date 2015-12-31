@@ -3,6 +3,7 @@ set -eu
 
 self="`basename $0`"
 
+POSTGRES_MASTER_BUILT=${POSTGRES_MASTER_BUILT:-false}
 PGDATA="{{ postgresql_data_directory }}"
 PGMARK="{{ postgresql_lib_dir }}/.done"
 PGPORT={{ postgresql_port }}
@@ -16,12 +17,14 @@ if [ -f "$PGMARK" ]; then
     exit 0
 fi
 
-# Security not so tight..
-PGPASSWORDFILE="{{ postgresql_conf_directory }}/pgpass.txt"
-echo $PGPASSWORD > $PGPASSWORDFILE
-echo 1>&2 "$self: Initializing Postgres Master DB..."
-echo -n 1>&2 "$self: "; {{ postgres_bin_path.stdout }}/initdb --encoding=UNICODE \
-                       --pwfile=$PGPASSWORDFILE --username=postgres --auth=md5
+if [ "$POSTGRES_MASTER_BUILT" != "true" ]; then
+    # Security not so tight..
+    PGPASSWORDFILE="{{ postgresql_conf_directory }}/pgpass.txt"
+    echo $PGPASSWORD > $PGPASSWORDFILE
+    echo 1>&2 "$self: Initializing Postgres Master DB..."
+    echo -n 1>&2 "$self: "; {{ postgres_bin_path.stdout }}/initdb --encoding=UNICODE \
+                           --pwfile=$PGPASSWORDFILE --username=postgres --auth=md5
+fi
 
 echo -n 1>&2 "$self: "; service postgresql start
 # sleep 3
