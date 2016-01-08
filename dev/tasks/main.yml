@@ -1,7 +1,5 @@
 ---
 
-- debug: msg="werd {{ git_version }}"
-
 - name: Update apt
   shell: apt-get update
   sudo: True

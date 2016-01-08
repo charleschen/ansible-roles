@@ -135,6 +135,11 @@
   when: ssl_key is defined
   sudo: True
 
+- name: Create flower folder
+  file:
+    state: directory
+    path: /var/lib/flower
+
 - name: Start nginx
   service: name=nginx state=started enabled=yes
   sudo: True
