@@ -62,16 +62,26 @@
   sudo: True
 
 - name: Check if code directory exists
-  stat: path="{{ code_dir }}"
+  stat: 
+    path: "{{ code_dir }}"
   register: efs_dir
   sudo: True
 
 - name: Clone repository
-  git: repo="{{ repo }}" dest="{{ code_dir }}" accept_hostkey=yes
+  git: 
+    repo: "{{ repo }}" 
+    dest: "{{ code_dir }}" 
+    version: "{{ git_version }}"
+    accept_hostkey: yes
   when: not efs_dir.stat.exists
 
 - name: Pull latest code
-  git: repo="{{ repo }}" dest="{{ code_dir }}" accept_hostkey=yes update=yes
+  git: 
+    repo: "{{ repo }}" 
+    dest: "{{ code_dir }}" 
+    version: "{{ git_version }}"
+    accept_hostkey: yes 
+    update: yes
   when: skip_pull is not defined
 
 - name: Copy app specific settings
