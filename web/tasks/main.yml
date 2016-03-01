@@ -10,6 +10,7 @@
     - libxml2-dev
     - libxslt-dev
     - libffi-dev
+    - libjpeg-dev
 
 - name: Install NPM
   action: apt pkg={{ item }} state=latest
