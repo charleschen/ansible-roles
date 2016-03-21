@@ -12,7 +12,7 @@
   register: postgres_bin_path
 
 - name: Create initdb
-  template: src=initdb.template dest="{{ postgresql_conf_directory }}/initdb" mode=0755
+  template: src=roles/postgres/templates/initdb.template dest="{{ postgresql_conf_directory }}/initdb" mode=0755
   sudo: true
 
 - debug: msg="database already initialized!"

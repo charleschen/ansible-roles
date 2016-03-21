@@ -101,7 +101,7 @@
     requirements: "requirements.txt" 
     state: latest 
     chdir: "{{ code_dir }}"
-    extra_args: "--exists-action s"
+    extra_args: "--upgrade --exists-action s"
   sudo: True
 
 - name: Install lxml
