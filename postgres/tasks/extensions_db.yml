@@ -6,6 +6,8 @@
   become: yes
   become_user: postgres
   service: name=postgresql state=started
+  vars:
+    ansible_ssh_pipelining: true
 
 - name: install extensions
   become: yes
@@ -17,8 +19,10 @@
     - cube
     - earthdistance
     - postgis
+  vars:
+    ansible_ssh_pipelining: true
 
-- name: install extensions
+- name: install extensions for test_db
   become: yes
   become_user: postgres
   postgresql_ext: 
@@ -28,3 +32,5 @@
     - cube
     - earthdistance
     - postgis
+  vars:
+    ansible_ssh_pipelining: true

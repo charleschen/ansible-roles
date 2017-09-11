@@ -23,9 +23,13 @@
   when: not done_file_stat.stat.exists
   become: yes
   become_user: postgres
+  vars:
+    ansible_ssh_pipelining: true
 
 - name: write done file
   file: path="{{ done_file }}" state=touch
   when: not done_file_stat.stat.exists
   become: yes
   become_user: postgres
+  vars:
+    ansible_ssh_pipelining: true
