@@ -9,12 +9,14 @@
 - name: dump postgres
   shell: "pg_dump -p {{ postgresql_port }} -F c {{ dbname }} -f {{ backup_file_name }}"
   args:
-    chdir: "/tmp"
+    chdir: "/var/lib/postgresql"
   become: yes
-  become_user: "root"
+  become_user: postgres
+  vars:
+    ansible_ssh_pipelining: true
 
 - fetch:
-    src: "/tmp/{{ backup_file_name }}"
+    src: "/var/lib/postgresql/{{ backup_file_name }}"
     dest: "."
     flat: yes
     validate_checksum: no
@@ -22,6 +24,6 @@
 - name: delete dump
   file:
     state: absent
-    path: "/tmp/{{ backup_file_name }}"
+    path: "/var/lib/postgresql/{{ backup_file_name }}"
   become: yes
   become_user: "root"
